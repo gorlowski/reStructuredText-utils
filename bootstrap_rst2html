@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+### GKO: import custom directives. Each one should register
+# itself with the parser:
+import codeblock
+from subprocess import Popen
+from subprocess import PIPE
+
+### Now run rst2html:
+rst2html = Popen(['which', 'rst2html'], stdout=PIPE).communicate()[0].rstrip()
+execfile(rst2html)

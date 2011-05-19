@@ -1,0 +1,86 @@
+#!/bin/sh
+
+### If this script is NOT a symlink, readlink should just
+# return $0. If it is a symlink, readlink will dereference it.
+#
+# NOTE: if you want to install this script in a separate
+# directory from bootstrap_rst2html then edit the code
+# below and explicitly set INSTALL_DIR.
+INSTALL_DIR=`dirname $(readlink -f $0)`
+BOOTSTRAP_SCRIPT="$INSTALL_DIR/bootstrap_rst2html"
+
+usage()
+{
+    script_name=`basename $0`
+    cat <<END_USAGE
+
+    Usage: $script_name [-c|--clipboard] [RST_FILE]
+
+    Translates the contents of RST_FILE to html. If the --clipboard
+    option is specified, the output will go to the clipboard.
+    Otherwise, the output will print to STDOUT
+
+    If RST_FILE is not specified, $script_name reads its input from
+    STDIN.
+
+    Tip: If you are editing a .rst file in vim and you want to 
+    translate the current buffer to html and copy it to the clipboard
+    in one step (so you can then paste it into, e.g., your 
+    blog-publishing client), do:
+
+        :!r2h -c %
+
+    To alias the above as just R2h, put this in your ~/.vimrc:
+
+        command R2h !r2h --clip %
+
+END_USAGE
+}
+
+### The <body> tag is always followed by <div class="document", and
+# the last 2 lines will close the div and the body... This is fragile,
+# but it is also trivial to fix if changes to the output format in
+# a future docutils version break it.
+extract_document_body()
+{
+    sed -n '/^<body>/,/^<\/body>/p' | sed -e '1,2d' | head -n '-2'
+}
+
+### Copy STDIN to the Xwindows CLIPBOARD paste buffer
+to_clip()
+{
+    xsel -bi
+}
+
+### By default, pipe to cat, which will just print to STDOUT
+OUTPUT_FILTER=cat
+
+RST_ARGS='--link-stylesheet '
+
+### getopt boilerplate:
+LONG_OPTS="help,clipboard"
+OPTS=$(getopt --long "$LONG_OPTS" "hc" "$@")
+[ $? != 0 ] && ( usage; exit 1 )
+eval set -- "$OPTS"
+
+while true; do
+  case "$1" in
+    -h|--help) usage; exit 0 ;;
+    -c|--clip*) OUTPUT_FILTER="to_clip"; shift;;
+    --) shift; break ;;
+    *) break ;;
+  esac
+done
+
+RST_DOCUMENT="$1"
+
+### If RST_DOCUMENT is specified, validate that it is a real file
+if [ -n "$RST_DOCUMENT" ] && [ ! -f "$RST_DOCUMENT" ]; then
+    usage; exit 1
+fi
+
+$BOOTSTRAP_SCRIPT \
+    $RST_ARGS \
+    $RST_DOCUMENT \
+    | extract_document_body \
+    | $OUTPUT_FILTER
