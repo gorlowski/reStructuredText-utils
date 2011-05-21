@@ -24,7 +24,7 @@ r2h:
 
 codeblock.py:
     defines and registers a ``code-block`` reStructuredText markup directive
-    for marking up code with `Syntax Highlighter
+    for code syntax highlighting using `Syntax Highlighter
     <http://alexgorbatchev.com/SyntaxHighlighter/>`_
 
 css/\*:
@@ -107,6 +107,20 @@ define the following commands
     in a web browser to preview. Run ``r2h --help`` for customizations
     that you can apply to this command definition (choose the browser,
     etc).
+
+Blogger-Specific
+^^^^^^^^^^^^^^^^^
+
+If you're using Blogger, make sure you configure::
+
+    Settings->Formatting->Convert Line Breaks = NO
+
+Here's `a screenshot of the configuration screen
+<http://gyazo.com/7c8b02a1a3e41fb665347323bf4fab84.png>`_
+from `the blogger.vim project
+<https://github.com/ujihisa/blogger.vim>`_. blogger.vim seems like a
+good alternative for publishing to blogger from vim, but it does not
+support automated ``reStructuredText -> HTML`` translation.
 
 --------------------------
 Misc Notes
