@@ -9,30 +9,84 @@
 INSTALL_DIR=`dirname $(readlink -f $0)`
 BOOTSTRAP_SCRIPT="$INSTALL_DIR/bootstrap_rst2html"
 
+TEMPLATE_DIR="${INSTALL_DIR}/templates"
+CSS_DIR="${INSTALL_DIR}/css"
+
+TEMPLATE="${TEMPLATE_DIR}/syntax_highlighter_template.txt"
+STYLESHEET="${CSS_DIR}/blogger_compat.css"
+
+BROWSER_CMD="x-www-browser {FILE}"
+ACTION="print"
+
 usage()
 {
     script_name=`basename $0`
     cat <<END_USAGE
 
-    Usage: $script_name [-c|--clipboard] [RST_FILE]
+    Usage: $script_name [OPTIONS] [RST_FILE]
 
-    Translates the contents of RST_FILE to html. If the --clipboard
-    option is specified, the output will go to the clipboard.
-    Otherwise, the output will print to STDOUT
+    Translates the contents of RST_FILE to html. 
 
-    If RST_FILE is not specified, $script_name reads its input from
-    STDIN.
+    If RST_FILE is not specified, $script_name reads its input from STDIN.
 
-    Tip: If you are editing a .rst file in vim and you want to 
+    Options:
+
+        -c, --clipboard             send output to your clipboard
+                                    instead of to STDOUT (the default)
+
+        -v, --validate              validate the markup. This will discard
+                                    STDOUT and print only STDERR, which will
+                                    print errors (if any) without printing
+                                    the output html.
+
+        -w, --preview               preview HTML output in a web browser
+                                    instead of to STDOUT
+
+        -b, --browser               set the web browser command to use
+                                    for --preview. You must include {FILE}
+                                    as a placeholder for the temporary
+                                    file that your browser will open if
+                                    you define a custom command. Default is
+                                    ${BROWSER_CMD}.
+
+                                    Note that {FILE} will automatically be
+                                    expressed in
+                                    file:///path/to/auto/generated/tempfile
+                                    URL notation.
+
+        -t, --tmpfile               the basename of the file to use as a
+                                    tempfile. If this is not supplied and
+                                    we do a preview using STDIN as input,
+                                    mktemp is used to generate a temp filename.
+                                    If RST_FILE is defined (not reading STDIN),
+                                    then the temp file will be
+                                    \$TMPDIR/RST_FILE.html (TMPDIR defaults to
+                                    /tmp if not defined)
+
+    Notes:
+        Some examples for --browser:
+
+            --browser "chromium-browser --app={FILE} --temp-profile" 
+            --browser "epiphany --new-window {FILE}" 
+            --browser "iceweasel -safe-mode -new-window {FILE}" 
+            --browser "gnome-terminal -e 'w3m {FILE}'" 
+
+        BROWSER="rxvt-unicode --font"
+        BROWSER="\$BROWSER '-misc-fixed-medium-r-normal--15-120-100-100-c-90-iso8859-1'"
+        BROWSER="\$BROWSER -e w3m {FILE}"
+
+            --browser="\$BROWSER"
+
+    Tip: If you are editing an .rst file in vim and you want to 
     translate the current buffer to html and copy it to the clipboard
     in one step (so you can then paste it into, e.g., your 
     blog-publishing client), do:
 
         :!r2h -c %
 
-    To alias the above as just R2h, put this in your ~/.vimrc:
+    To alias the above as just R2hclip, put this in your ~/.vimrc:
 
-        command R2h !r2h --clip %
+        command R2hclip !r2h --clip
 
 END_USAGE
 }
@@ -46,6 +100,13 @@ extract_document_body()
     sed -n '/^<body>/,/^<\/body>/p' | sed -e '1,2d' | head -n '-2'
 }
 
+cleanup_tmp_file()
+{
+    r2h_tmp_file="$1"
+    #[ -f "$r2h_tmp_file" ] && rm "$r2h_tmp_file"
+    echo "MUST CLEAN UP: $r2h_tmp_file"
+}
+
 ### Copy STDIN to the Xwindows CLIPBOARD paste buffer
 to_clip()
 {
@@ -55,18 +116,22 @@ to_clip()
 ### By default, pipe to cat, which will just print to STDOUT
 OUTPUT_FILTER=cat
 
-RST_ARGS='--link-stylesheet '
+RST_ARGS='--link-stylesheet --no-doc-title'
 
 ### getopt boilerplate:
-LONG_OPTS="help,clipboard"
-OPTS=$(getopt --long "$LONG_OPTS" "hc" "$@")
+LONG_OPTS="help,clipboard,preview,validate,browser:,tmpfile:"
+OPTS=$(getopt --long "$LONG_OPTS" "hcwvb:t:" "$@")
 [ $? != 0 ] && ( usage; exit 1 )
 eval set -- "$OPTS"
 
 while true; do
   case "$1" in
-    -h|--help) usage; exit 0 ;;
-    -c|--clip*) OUTPUT_FILTER="to_clip"; shift;;
+    -h|--help)      usage; exit 0;;
+    -c|--clip*)     OUTPUT_FILTER="to_clip"; shift;;
+    -w|--prev*)     ACTION=preview; shift;;
+    -v|--valid*)    ACTION=validate; shift;;
+    -b|--browser)   BROWSER_CMD="$2"; shift 2;;
+    -t|--tmpfile)   TMP_FILE="$2"; shift 2;;
     --) shift; break ;;
     *) break ;;
   esac
@@ -79,8 +144,61 @@ if [ -n "$RST_DOCUMENT" ] && [ ! -f "$RST_DOCUMENT" ]; then
     usage; exit 1
 fi
 
-$BOOTSTRAP_SCRIPT \
-    $RST_ARGS \
-    $RST_DOCUMENT \
-    | extract_document_body \
-    | $OUTPUT_FILTER
+case "$ACTION" in
+    validate) 
+        $BOOTSTRAP_SCRIPT $RST_ARGS --exit-status=3 \
+            $RST_DOCUMENT 1> /dev/null
+        exit_status=$?
+        [ $exit_status = 0 ] && echo "No Errors in Markup."
+        ;;
+    print)
+        $BOOTSTRAP_SCRIPT \
+            $RST_ARGS \
+            $RST_DOCUMENT \
+            | extract_document_body \
+            | $OUTPUT_FILTER
+        ;;
+    preview)
+        if [ -f "$RST_DOCUMENT" ] || [ -n "$TMP_FILE" ]; then
+            [ ! -d "$TMPDIR" ] && TMPDIR=/tmp
+            if [ -z "$TMP_FILE" ]; then 
+                TMP_FILE="$RST_DOCUMENT"
+            fi
+            fname=`basename "$TMP_FILE"`
+            r2h_tmp_file="${TMPDIR}/${fname}.html"
+        else
+            r2h_tmp_file=`mktemp --suffix=.html`
+        fi
+
+        $BOOTSTRAP_SCRIPT \
+            $RST_ARGS --template="$TEMPLATE" --stylesheet="$STYLESHEET" \
+            $RST_DOCUMENT > "$r2h_tmp_file"
+
+        # ensure the file is cleaned up on EXIT, even if the user
+        # sends a SIGINT. Below we have a hack for firefox/iceweasel, which
+        # do not block when you call them on the command line if a current
+        # browser process is running. Because firefox does not block, there
+        # is a race-condition between the trap to delete the tmp file
+        # and the loading of the file in FF. Our lame workaround is to
+        # just sleep in the EXIT trap to allow FF to load the file before
+        # we delete it. I also include a check for setsid
+        # in case we want to run with, e.g., "setsid chromium-browser {FILE}".
+        # setsid gives responsiveness, but b/c we have to sleep for the browser
+        # to win the race condition (and we want to ensure that the file is
+        # cleaned up on exit), using it makes no sense
+        is_race_condition=0
+        for s in firefox iceweasel setsid; do
+            idx=`expr match "$BROWSER_CMD" "$s"`
+            is_race_condition=$((is_race_condition+idx))
+        done
+
+        if [ $is_race_condition -gt 0 ]; then
+            trap '[ -f "$r2h_tmp_file" ] && sleep 4 ; rm "$r2h_tmp_file"' EXIT
+        else
+            trap '[ -f "$r2h_tmp_file" ] && rm "$r2h_tmp_file"' EXIT
+        fi
+
+        ${BROWSER_CMD/\{FILE\}/file://$r2h_tmp_file} >/dev/null 2>&1
+        ;;
+    *) usage; exit 1;;
+esac

@@ -18,13 +18,23 @@ Current Features/Components
 
 r2h:
     A shell script entry point that supports translating reStructuredText to
-    HTML, stripping all content outside the main document ``<body>`` tag, and
-    optionally copying the result to your X windows CLIPBOARD paste buffer
+    HTML. r2h supports previewing the HTML in a web browser, validating
+    the markup with docutils and/or stripping all content outside the main
+    document ``<body>`` and copying the result to your Xwindows CLIPBOARD
 
 codeblock.py:
     defines and registers a ``code-block`` reStructuredText markup directive
     for marking up code with `Syntax Highlighter
     <http://alexgorbatchev.com/SyntaxHighlighter/>`_
+
+css/\*:
+    stylesheets to use with docutils (you can upload these and link them in
+    your blogging template)
+
+templates/\*:
+    templates that r2h will use when generating a complete html page. These
+    can include links to additional css/javascripts in the ``<head>`` for
+    stuff like, e.g., including SyntaxHighlighter js and css.
 
 -------------
 Requirements
@@ -53,7 +63,8 @@ Installation Instructions
 Usage Examples
 ------------------
 
-Get usage information for r2h::
+Get usage information for r2h (includes some option parameters not specified
+here)::
 
     r2h --help
 
@@ -67,15 +78,35 @@ the ``<body>`` element to the Xwindows CLIPBOARD paste buffer::
 
     r2h -c myfile.rst
 
+Preview the html generated from myfile.rst in a web browser::
+
+    r2h --preview myfile.rst
+
+Validate the syntax of myfile.rst::
+
+    r2h --valid myfile.rst
+
 -------------
 Tips
 -------------
 
-Define an R2h command in vim. When editing an rst file, this command will read
-the vim buffer, translate it to html, and copy it to the Xwindows clipboard in
-a single step::
+Copy or symlink vim/rst_html_util.vim in your ~/.vim/plugin directory to
+define the following commands
 
-    command R2h !r2h --clip %
+``R2HClip``:
+    Translates the rst file in the vim buffer to html, strips everything
+    not inside the main ``<body>`` tag, and copies the result into your
+    Xwindows CLIPBOARD (for easy pasting into a blogging client)
+
+``R2HValid``:
+    Validates the rst content in your vim buffer, printing any syntax
+    errors.
+
+``R2HPreview``
+    Translates the rst file in the vim buffer to html and opens the html
+    in a web browser to preview. Run ``r2h --help`` for customizations
+    that you can apply to this command definition (choose the browser,
+    etc).
 
 --------------------------
 Misc Notes
@@ -85,13 +116,13 @@ I wrote r2h so I can write Blogger posts with reStructuredText syntax in vim
 and easily translate the output to HTML. I had to write ``codeblock.py`` so
 I could integrate SyntaxHighlighter for code syntax highlighting.
 
-My current process is to write reStructuredText in vim, translate to HTML
-and copy the HTML to my clipboard with R2h, and publish a blog article
-by pasting the clipboard into a blogtk window and clicking publish. 
+My current process is to write reStructuredText in vim, validate it with
+``R2HValid``, preview it with ``R2HPreview``, and copy it to my CLIPBOARD
+with ``R2HClip`` when I'm ready to publish. I then paste the clipboard
+into a blogtk window to publish.
 
-I will update this project in the future with a script + some vim commands
-to hook GoogleCL into the toolchain to support the following steps from
-a single vim command:
-
-#. translate reStructuredText to HTML
-#. publish the HTML to a new Blogger post
+I will update this project in the future with a script + some vim commands to
+hook GoogleCL or some other script to support publishing the html generated
+from the reStructuredText directly to Blogger (without the need to paste it
+into an intermediate client). At some point, I may also add vim commands for
+publishing reStructuredText as an update to an existing blog post.
