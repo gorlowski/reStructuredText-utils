@@ -1,34 +1,40 @@
 %(head_prefix)s
 %(head)s
-%(stylesheet)s
 
-<!-- Add SyntaxHighlighter CSS stylesheets to head -->
-<link href='http://alexgorbatchev.com/pub/sh/current/styles/shCore.css' rel='stylesheet' type='text/css'/>
-<link href='http://alexgorbatchev.com/pub/sh/current/styles/shCoreDefault.css' rel='stylesheet' type='text/css'/>
-<link href='http://alexgorbatchev.com/pub/sh/current/styles/shThemeMidnight.css' rel='stylesheet' type='text/css'/>
+<link href='file:///home/greg/ws/misc/git/rst_blog/css/syntax_highlighter/shCore.css' rel='stylesheet' type='text/css'/>
+<link href='file:///home/greg/ws/misc/git/rst_blog/css/syntax_highlighter/shCoreDefault.css' rel='stylesheet' type='text/css'/>
 
-<!-- Add SyntaxHighlighter core scripts -->
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shCore.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushXml.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushVb.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushSql.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushScala.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushRuby.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushPython.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushPowerShell.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushPlain.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushPhp.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushPerl.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushJScript.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushJava.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushJavaFX.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushGroovy.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushErlang.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushDiff.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushDelphi.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushCss.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushCSharp.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushCpp.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushColdFusion.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushBash.js' type='text/javascript'></script>
+<script src='file:///home/greg/ws/misc/git/rst_blog/js/syntax_highlighter/shBrushAS3.js' type='text/javascript'></script>
 
-<!-- 
-    Add SyntaxHighlighter language-specific brush scripts (edit these to choose
-    brushes that you use or use the brush autoloader feature)
--->
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJava.js' type='text/javascript'></script>
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushRuby.js' type='text/javascript'></script>
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushScala.js' type='text/javascript'></script>
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushDiff.js' type='text/javascript'></script>
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushPerl.js' type='text/javascript'></script>
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushBash.js' type='text/javascript'></script>
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushPython.js' type='text/javascript'></script>
-<script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushSql.js' type='text/javascript'></script>
-
-<!-- Call SyntaxHighlighter -->
 <script language='javascript' type='text/javascript'>
-    SyntaxHighlighter.config.bloggerMode = true;
-    SyntaxHighlighter.all();
+  SyntaxHighlighter.config.bloggerMode = true;
+  SyntaxHighlighter.all();
 </script>
 
+%(stylesheet)s
 %(body_prefix)s
 %(body_pre_docinfo)s
 %(docinfo)s

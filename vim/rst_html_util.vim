@@ -12,4 +12,4 @@ command R2HValid w ! r2h --valid
 
 """ Translate the contents of the current VIM buffer from reStructuredText ->
 """ HTML and preview the result in a web browser
-command R2HPreview sil w ! r2h --preview --browser='chromium-browser --app={FILE} --temp-profile' --tmpfile="%:t:r"
+command R2HPreview sil w ! r2h --preview --browser='chromium-browser --app={FILE} --lib=pygments --style=autumn --temp-profile' --tmpfile="%:t:r"

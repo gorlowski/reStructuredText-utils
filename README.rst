@@ -9,7 +9,7 @@ A project to provide a convenient toolchain for authoring
 blogs and/or other web content using:
 
 + reStructuredText for document markup
-+ SyntaxHighlighter for code highlighting
++ SyntaxHighlighter or Pygments for code highlighting
 + a real text editor like vim or emacs
 
 ---------------------------
@@ -23,18 +23,16 @@ r2h:
     document ``<body>`` and copying the result to your Xwindows CLIPBOARD
 
 codeblock.py:
-    defines and registers a ``code-block`` reStructuredText markup directive
+    defines and registers a ``code`` reStructuredText markup directive
     for code syntax highlighting using `Syntax Highlighter
-    <http://alexgorbatchev.com/SyntaxHighlighter/>`_
+    <http://alexgorbatchev.com/SyntaxHighlighter/>`_ or 
+    `Pygments <http://pygments.org/>`_.
 
 css/\*:
-    stylesheets to use with docutils (you can upload these and link them in
-    your blogging template)
-
-templates/\*:
-    templates that r2h will use when generating a complete html page. These
-    can include links to additional css/javascripts in the ``<head>`` for
-    stuff like, e.g., including SyntaxHighlighter js and css.
+    stylesheets to use with docutils. These are generated (when using Pygments)
+    or downloaded (when using SyntaxHighlighter) by the Makefile. They
+    include both core css files for each syntax highlighting backend and
+    pluggable, theme-specific files.
 
 -------------
 Requirements
@@ -55,6 +53,8 @@ Installation Instructions
 #. Install all the required packages. Make sure rst2html and (optionally) xsel
    are on your PATH
 #. Copy all the files into some directory on your filesystem
+#. Run ``make all`` to download or generate css and js files. Run
+   ``make help`` for additional Makefile parameters.
 #. symlink r2h somewhere on your PATH::
 
         ln -s /path/to/inst/dir/r2h /usr/local/bin/r2h
@@ -78,13 +78,26 @@ the ``<body>`` element to the Xwindows CLIPBOARD paste buffer::
 
     r2h -c myfile.rst
 
-Preview the html generated from myfile.rst in a web browser::
+Preview the html generated from myfile.rst in a web browser, using
+SyntaxHighlighter with its midnight theme for syntax highlighting::
 
-    r2h --preview myfile.rst
+    r2h --preview --style=midnight --lib=sh myfile.rst
+
+Preview the html generated from myfile.rst in a web browser, using
+Pygments with its manni theme for syntax highlighting. Use the chromium
+web browser in "app mode" with a temp browser profile for the preview::
+
+    r2h --preview --style=manni --lib=pygments \
+        --browser "chromium-browser --app={FILE} --temp-profile" 
+        myfile.rst
 
 Validate the syntax of myfile.rst::
 
     r2h --valid myfile.rst
+
+Get a list of styles/themes supported by the syntax highlighting backends::
+
+    r2h -L
 
 -------------
 Tips
@@ -128,7 +141,15 @@ Misc Notes
 
 I wrote r2h so I can write Blogger posts with reStructuredText syntax in vim
 and easily translate the output to HTML. I had to write ``codeblock.py`` so
-I could integrate SyntaxHighlighter for code syntax highlighting.
+I could integrate SyntaxHighlighter for code syntax highlighting. After
+using SyntaxHighlighter a bit, I decided to switch to Pygments because
+it supports more file formats. However, I decided to keep the SyntaxHighlighter
+support as an optional backend.
+
+If you want to use r2h with some blogging service/platform, view the source of 
+the html generated in preview mode, identify the css (and possibly js) files
+included in the html, and make sure to include those files somehow in the
+``<head>`` element of your blogging template.
 
 My current process is to write reStructuredText in vim, validate it with
 ``R2HValid``, preview it with ``R2HPreview``, and copy it to my CLIPBOARD

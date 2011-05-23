@@ -1,2 +1,5 @@
 *.pyc
 *.swp
+css/syntax_highlighter
+css/pygments
+js

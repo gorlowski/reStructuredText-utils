@@ -12,8 +12,12 @@ BOOTSTRAP_SCRIPT="$INSTALL_DIR/bootstrap_rst2html"
 TEMPLATE_DIR="${INSTALL_DIR}/templates"
 CSS_DIR="${INSTALL_DIR}/css"
 
-TEMPLATE="${TEMPLATE_DIR}/syntax_highlighter_template.txt"
-STYLESHEET="${CSS_DIR}/blogger_compat.css"
+### Defaults:
+TEMPLATE="${TEMPLATE_DIR}/pygments_template.txt"
+HIGHLIGHTER=pygments
+STYLE=autumn
+
+BLOGGER_STYLESHEET="${CSS_DIR}/blogger_compat.css"
 
 BROWSER_CMD="x-www-browser {FILE}"
 ACTION="print"
@@ -40,7 +44,7 @@ usage()
                                     the output html.
 
         -w, --preview               preview HTML output in a web browser
-                                    instead of to STDOUT
+                                    instead of to STDOUT.
 
         -b, --browser               set the web browser command to use
                                     for --preview. You must include {FILE}
@@ -54,6 +58,22 @@ usage()
                                     file:///path/to/auto/generated/tempfile
                                     URL notation.
 
+        -l, --lib                   the name of the syntax highlighting library
+                                    to use. These opt args are supported
+                                    (case insensitive):
+
+                                    sh | SyntaxHighlighter  = SyntaxHighlighter
+                                    p | pygments            = Pygments
+
+        -L, --list                  List syntax highlighting backends and
+                                    styles.
+
+        -s, --style                 The name of the syntax highlighting style
+                                    to use. Look in css/[LIBRARY NAME]/*css
+                                    for the list of css files. Specify an
+                                    unambiguous substring of the css
+                                    filename (no need for abs path).
+                                        
         -t, --tmpfile               the basename of the file to use as a
                                     tempfile. If this is not supplied and
                                     we do a preview using STDIN as input,
@@ -88,6 +108,13 @@ usage()
 
         command R2hclip !r2h --clip
 
+    Examples:
+        # Preview using SyntaxHighlighter for code formatting with the Midnight theme:
+        r2h --preview --style=midnight --lib=sh myfile.rst
+
+        # Preview using Pygments for code formatting with the Manni theme:
+        r2h --preview --style=manni --lib=pygments myfile.rst
+
 END_USAGE
 }
 
@@ -113,14 +140,38 @@ to_clip()
     xsel -bi
 }
 
+list_backends()
+{
+    pattern="%-22s %s\n"
+    printf "$pattern" "----------------------" "------------------------" 
+    printf "$pattern" "Highlighting Backend"    Theme
+    printf "$pattern" "----------------------" "------------------------" 
+    be=Pygments
+    for f in `ls "$INSTALL_DIR"/css/pygments`; do
+        f=`basename "$f"`
+        theme=${f%.css}
+        printf "$pattern" $be $theme
+    done
+    echo
+    be=SyntaxHighlighter
+    for f in `ls "$INSTALL_DIR"/css/syntax_highlighter |grep -v shCore`; do
+        f=`basename "$f"`
+        theme=${f%.css}
+        theme=${theme#shTheme}
+        printf "$pattern" $be $theme
+    done
+    printf "$pattern" "----------------------" "------------------------" 
+    echo
+}
+
 ### By default, pipe to cat, which will just print to STDOUT
 OUTPUT_FILTER=cat
 
 RST_ARGS='--link-stylesheet --no-doc-title'
 
 ### getopt boilerplate:
-LONG_OPTS="help,clipboard,preview,validate,browser:,tmpfile:"
-OPTS=$(getopt --long "$LONG_OPTS" "hcwvb:t:" "$@")
+LONG_OPTS="help,clipboard,preview,list,validate,lib:,style:,browser:,tmpfile:"
+OPTS=$(getopt --long "$LONG_OPTS" "hcwvLb:t:l:s:" "$@")
 [ $? != 0 ] && ( usage; exit 1 )
 eval set -- "$OPTS"
 
@@ -130,7 +181,22 @@ while true; do
     -c|--clip*)     OUTPUT_FILTER="to_clip"; shift;;
     -w|--prev*)     ACTION=preview; shift;;
     -v|--valid*)    ACTION=validate; shift;;
+    -L|--list*)     ACTION=list; shift;;
     -b|--browser)   BROWSER_CMD="$2"; shift 2;;
+    -l|--lib)       
+        export SYNTAX_HIGHLIGHTING_FRAMEWORK="$2"
+        is_sh=0
+        for s in SH SYNTAXHIGHLIGHTER; do
+            m=`expr match "${SYNTAX_HIGHLIGHTING_FRAMEWORK^^}" "$s"`
+            is_sh=$((is_sh+m))
+        done
+        if [ $is_sh -gt 0 ]; then
+            TEMPLATE="${TEMPLATE_DIR}/syntax_highlighter_template.txt"
+            HIGHLIGHTER=syntax_highlighter
+        fi
+        shift 2
+        ;;
+    -s|--style)     STYLE="$2"; shift 2;;
     -t|--tmpfile)   TMP_FILE="$2"; shift 2;;
     --) shift; break ;;
     *) break ;;
@@ -151,11 +217,14 @@ case "$ACTION" in
         exit_status=$?
         [ $exit_status = 0 ] && echo "No Errors in Markup."
         ;;
+    list)
+        list_backends
+        exit 0
+        ;;
     print)
         $BOOTSTRAP_SCRIPT \
             $RST_ARGS \
             $RST_DOCUMENT \
-            | extract_document_body \
             | $OUTPUT_FILTER
         ;;
     preview)
@@ -170,8 +239,22 @@ case "$ACTION" in
             r2h_tmp_file=`mktemp --suffix=.html`
         fi
 
+        LIB_CSS_DIR="${CSS_DIR}/${HIGHLIGHTER}"
+        if [ -z "$STYLE" ] && [ "$HIGHLIGHTER" = syntax_highlighter ]; then
+            STYLE=Default
+        fi
+
+        STYLE_DEF="$BLOGGER_STYLESHEET"
+        STYLE_FILE=`find "$LIB_CSS_DIR" -iregex ".*$STYLE.*" |head -n1`
+
+        if [ ! -z "$STYLE_FILE" ]; then
+            sf=`readlink -f "$STYLE_FILE"`
+            STYLE_DEF="${STYLE_DEF},${sf}"
+        fi
+
         $BOOTSTRAP_SCRIPT \
-            $RST_ARGS --template="$TEMPLATE" --stylesheet="$STYLESHEET" \
+            $RST_ARGS --template="$TEMPLATE" \
+            --stylesheet="$STYLE_DEF" \
             $RST_DOCUMENT > "$r2h_tmp_file"
 
         # ensure the file is cleaned up on EXIT, even if the user

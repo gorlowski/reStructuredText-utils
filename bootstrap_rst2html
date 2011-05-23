@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
-### GKO: import custom directives. Each one should register
-# itself with the parser:
+### Import custom directives:
 import codeblock
 from subprocess import Popen
 from subprocess import PIPE
