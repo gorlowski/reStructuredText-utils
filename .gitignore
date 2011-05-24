@@ -2,4 +2,5 @@
 *.swp
 css/syntax_highlighter
 css/pygments
+templates
 js

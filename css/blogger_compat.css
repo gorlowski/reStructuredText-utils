@@ -280,15 +280,22 @@ table.docinfo {
   margin: 2em 4em }
 
 table.docutils {
-  margin-top: 0.5em ;
-  margin-bottom: 0.5em }
+  border-collapse: collapse;
+  border: 1px solid #999;
+  margin: 0.5em;
+}
 
 table.footnote {
   border-left: solid 1px black;
   margin-left: 1px }
 
+table.docutils th.head {
+    text-align: center;
+}
+
 table.docutils td, table.docutils th,
 table.docinfo td, table.docinfo th {
+  border: 1px solid #bbb;
   padding-left: 0.5em ;
   padding-right: 0.5em ;
   vertical-align: top }

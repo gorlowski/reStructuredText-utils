@@ -223,7 +223,7 @@ case "$ACTION" in
         ;;
     print)
         $BOOTSTRAP_SCRIPT \
-            $RST_ARGS \
+            $RST_ARGS --template="$TEMPLATE_DIR/template_clipboard.txt" \
             $RST_DOCUMENT \
             | $OUTPUT_FILTER
         ;;

@@ -96,6 +96,10 @@ install_vim_files:
 	fi
 	@echo
 
+prep_templates:
+	mkdir -p $(TMPL_DIR)
+	cp src/templates/template_clipboard.txt $(TMPL_DIR)
+
 pygments: pygments_header pygments_css pygments_tmpl
 
 pygments_header:
@@ -144,7 +148,7 @@ pygments_css: check_pygments
 		>> $(PYGMENTS_CSS_DIR)/$${style}.css; \
 	done
 
-pygments_tmpl:
+pygments_tmpl: prep_templates
 	@echo ----------------------------
 	@echo Generating Pygments Template
 	@echo ----------------------------
@@ -185,7 +189,7 @@ sh_js:
 	    curl -L $(SH_JS_BASE_URL)/$$js -o $(SH_JS_DIR)/$$js ; \
 	done
 
-sh_tmpl:
+sh_tmpl: prep_templates
 	@echo -------------------------------------
 	@echo Generating SyntaxHighlighter Template
 	@echo -------------------------------------
