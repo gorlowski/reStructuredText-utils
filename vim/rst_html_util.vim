@@ -1,3 +1,6 @@
+"
+"   Copy or symlink this file to ~/.vim/plugin/rst_html_util.vim
+"
 if exists("g:RSTHtmlLoaded")
     finish
 endif

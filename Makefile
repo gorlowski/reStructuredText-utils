@@ -30,7 +30,14 @@ SH_PROJ_PAGE_THEMES_URL := http://alexgorbatchev.com/SyntaxHighlighter/manual/th
 SH_PROJ_PAGE_JS_URL := http://alexgorbatchev.com/SyntaxHighlighter/manual/brushes/
 SH_JS_BASE_URL := http://alexgorbatchev.com/pub/sh/current/scripts
 
-all: $(COMPONENTS)
+VIM_EXT_DIR := $(HOME)/.vim
+VIM_PLUGIN_DIR := $(HOME)/.vim/plugin
+VIM_AFTER_SYNTAX_DIR := $(HOME)/.vim/after/syntax
+
+R2H_VIM_PLUGIN_TARGET := $(VIM_PLUGIN_DIR)/rst_html_util.vim
+R2H_VIM_AFTER_SYNTAX_TARGET := $(VIM_AFTER_SYNTAX_DIR)/rst.vim
+
+all: $(COMPONENTS) install_vim_files
 
 help:
 	@echo
@@ -53,7 +60,42 @@ help:
 	@echo "    To build without SyntaxHighlighter support:"
 	@echo "		make SYNTAX_HIGHLIGHTER=0"
 	@echo
-	
+
+install_vim_files:
+	@echo "-------------------------------------------------------"
+	@echo "Installing plugin files to $(VIM_EXT_DIR)"
+	@echo "-------------------------------------------------------"
+	if [ -d "$(VIM_EXT_DIR)" ]; then \
+	    mkdir -p $(VIM_PLUGIN_DIR) ; \
+	    mkdir -p $(VIM_AFTER_SYNTAX_DIR) ; \
+	    if [ -e "$(R2H_VIM_PLUGIN_TARGET)" ] \
+		|| [ -L "$(R2H_VIM_PLUGIN_TARGET)" ]; then \
+		overwrite=N ; \
+		prompt='File $(R2H_VIM_PLUGIN_TARGET) exists. Overwrite? [Y/N]: ' ; \
+		read -p "$$prompt" overwrite ; \
+		if [ "$$overwrite" = Y ]; then \
+		    $(RM) "$(R2H_VIM_PLUGIN_TARGET)" ; \
+		    ln -s $(PWD)/vim/rst_html_util.vim "$(R2H_VIM_PLUGIN_TARGET)" ; \
+		fi ; \
+	    else \
+		echo $(R2H_VIM_PLUGIN_TARGET) ; \
+		ln -s $(PWD)/vim/rst_html_util.vim "$(R2H_VIM_PLUGIN_TARGET)" ; \
+	    fi ; \
+	    if [ -e "$(R2H_VIM_AFTER_SYNTAX_TARGET)" ] \
+		|| [ -L "$(R2H_VIM_AFTER_SYNTAX_TARGET)" ]; then \
+		overwrite=N ; \
+		prompt='File $(R2H_VIM_AFTER_SYNTAX_TARGET) Overwrite? [Y/N]: ' ; \
+		read -p "$$prompt" overwrite ; \
+		if [ "$$overwrite" = Y ]; then \
+		    $(RM) "$(R2H_VIM_AFTER_SYNTAX_TARGET)" ; \
+		    ln -s $(PWD)/vim/rst.vim "$(R2H_VIM_AFTER_SYNTAX_TARGET)" ; \
+		fi ; \
+	    else \
+		ln -s $(PWD)vim/rst.vim "$(R2H_VIM_AFTER_SYNTAX_TARGET)" ; \
+	    fi ; \
+	fi
+	@echo
+
 pygments: pygments_header pygments_css pygments_tmpl
 
 pygments_header:
