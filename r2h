@@ -1,4 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+
+### This only works with bash. dash/ash does not support the text
+# substitutions that we make. I should just rewrite this in perl
+####!/bin/sh
 
 ### If this script is NOT a symlink, readlink should just
 # return $0. If it is a symlink, readlink will dereference it.
@@ -281,6 +285,8 @@ case "$ACTION" in
             trap '[ -f "$r2h_tmp_file" ] && rm "$r2h_tmp_file"' EXIT
         fi
 
+        ### This only works in bash (not, e.g., dash). I should this entire
+        # script in perl or python
         ${BROWSER_CMD/\{FILE\}/file://$r2h_tmp_file} >/dev/null 2>&1
         ;;
     *) usage; exit 1;;

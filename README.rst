@@ -23,7 +23,7 @@ r2h:
     document ``<body>`` and copying the result to your Xwindows CLIPBOARD
 
 codeblock.py:
-    defines and registers a ``code`` reStructuredText markup directive
+    defines and registers a ``code-block`` reStructuredText markup directive
     for code syntax highlighting using `Syntax Highlighter
     <http://alexgorbatchev.com/SyntaxHighlighter/>`_ or 
     `Pygments <http://pygments.org/>`_.

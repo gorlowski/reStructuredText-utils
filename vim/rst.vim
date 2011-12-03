@@ -8,7 +8,7 @@ syn cluster rstDirectives           contains=rstFootnote,rstCitation,
 
 """ Define rstCodeBlock (contains nothing)
 syn region rstCodeBlock contained matchgroup=rstDirective
-      \ start='code::\s\+[[:alnum:]]\+' skip='^$' end='^\s\@!'
+      \ start='code-block::\s\+[[:alnum:]]\+' skip='^$' end='^\s\@!'
 
 """ Note that rstCodeBlock should be highlighted as a String
 hi def link rstCodeBlock                    String

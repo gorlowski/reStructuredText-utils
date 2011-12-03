@@ -103,3 +103,4 @@ if environ.has_key('SYNTAX_HIGHLIGHTING_FRAMEWORK'):
 
 ### Register it:
 directives.register_directive('code', framework_map[syntax_highlighting_framework])
+directives.register_directive('code-block', framework_map[syntax_highlighting_framework])
