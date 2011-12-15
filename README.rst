@@ -5,12 +5,26 @@ reStructuredText Blog Authoring Tools
 -----------
 Description
 -----------
-A project to provide a convenient toolchain for authoring
-blogs and/or other web content using:
+A toolchain for reStructuredText authoring. This provides the following
+features:
 
-+ reStructuredText for document markup
-+ SyntaxHighlighter or Pygments for code highlighting
-+ a real text editor like vim or emacs
+    - A vim function for previewing the document in your current vim buffer in
+      html format in one of several supported web browsers (firefox, iceweasel,
+      chromium, epiphany and w3m)
+
+    - A vim function to validate the reStructuredText markup in your current
+      buffer
+
+    - A vim function to translate the reStructuredText in your current buffer
+      to html, and copy the html to your clipboard.
+
+    - A utility script to translate reStructuredText to html, validate rst
+      files, and copy an rst-to-html translation to your clipboard.
+
+    - A reStructuredText extension that defines a ``code-block`` markup
+      directive and highlights the code block with `Pygments
+      <http://pygments.org/>`_ or `SyntaxHighlighter
+      <http://alexgorbatchev.com/SyntaxHighlighter/>`_ (configurable).
 
 ---------------------------
 Current Features/Components
