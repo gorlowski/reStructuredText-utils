@@ -274,7 +274,7 @@ case "$ACTION" in
         # to win the race condition (and we want to ensure that the file is
         # cleaned up on exit), using it makes no sense
         is_race_condition=0
-        for s in firefox iceweasel setsid; do
+        for s in firefox iceweasel setsid chromium-browser; do
             idx=`expr match "$BROWSER_CMD" "$s"`
             is_race_condition=$((is_race_condition+idx))
         done
